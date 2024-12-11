@@ -39,11 +39,15 @@ jobs:
         
     - name: Prepare plugin package
       run: |
+        # Create plugins directory
         mkdir -p s2400-plugins
+        
+        # Copy built plugin to staging area
         find build -name "TAL-Filter.lv2" -type d -exec cp -r {} s2400-plugins/ \;
-        # Modify the ttl files to change requiredFeature to optionalFeature
+        
+        # Only modify inPlaceBroken if it exists in the manifest
         if [ -f s2400-plugins/TAL-Filter.lv2/manifest.ttl ]; then
-          sed -i 's/requiredFeature/optionalFeature/g' s2400-plugins/TAL-Filter.lv2/manifest.ttl
+          sed -i 's/lv2:requiredFeature\s\+<http:\/\/lv2plug\.in\/ns\/ext\/inPlaceBroken>/lv2:optionalFeature <http:\/\/lv2plug\.in\/ns\/ext\/inPlaceBroken>/g' s2400-plugins/TAL-Filter.lv2/manifest.ttl
         fi
         
     - name: Upload artifacts
