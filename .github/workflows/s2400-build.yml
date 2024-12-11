@@ -28,9 +28,11 @@ jobs:
       run: |
         pip3 install meson ninja
         meson setup build --cross-file tools/cross-compilation/aarch64-linux-gnu.txt \
-          -Dports-juce5-tal-filter=true \
-          -Dbuilder=lv2 \
-          -Doptimization=3
+          -Dplugins=tal-filter \
+          -Dbuild-lv2=true \
+          -Dbuild-vst2=false \
+          -Dbuild-vst3=false \
+          -Doptimizations=true
         
     - name: Build TAL-Filter
       run: |
