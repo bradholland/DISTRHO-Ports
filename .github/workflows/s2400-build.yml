@@ -23,10 +23,18 @@ jobs:
         sudo apt-get install -y build-essential pkg-config
         sudo apt-get install -y libx11-dev libgl1-mesa-dev
         sudo apt-get install -y lv2-dev
+        # Audio processing dependencies
+        sudo apt-get install -y libfftw3-dev
+        # Cross-compiled libraries for aarch64
+        sudo apt-get install -y libfftw3-dev:arm64
+        sudo apt-get install -y libx11-dev:arm64
+        sudo apt-get install -y libgl1-mesa-dev:arm64
 
     - name: Configure meson build
       run: |
         pip3 install meson ninja
+        # Set up pkg-config to find arm64 libraries
+        export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
         meson setup build --cross-file tools/cross-compilation/aarch64-linux-gnu.txt \
           -Dplugins=tal-filter \
           -Dbuild-lv2=true \
