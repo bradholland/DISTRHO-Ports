@@ -1,31 +1,35 @@
 --- TalCore.cpp.orig
 +++ TalCore.cpp
-@@ -50,6 +50,15 @@
+@@ -50,6 +50,14 @@ void TalCore::setParameter (int index, float newValue)
      {
          return;
      }
 +    
 +    // Scale parameters correctly for LV2
-+    switch (index)
++    float scaledValue = newValue;
++    if (index == FILTERTYPE)
 +    {
-+        case FILTERTYPE:
-+            newValue = newValue * 7.0f + 1.0f;
-+            break;
++        scaledValue = newValue * 7.0f + 1.0f;
++        newValue = scaledValue;
 +    }
-+    
+ 
      params[index] = newValue;
-     
      switch (index)
-     {
-+        case CUTOFF:
-+            engine->setCutoff(newValue);
-+            break;
-         case RESONANCE:
-+            engine->setResonance(newValue);
-+            break;
-         case FILTERTYPE:
-+            engine->setFilterType((int)(newValue));
-+            break;
-         case LFORATE:
-             engine->setSync((int)params[LFOSYNC], newValue);
+@@ -65,6 +73,18 @@ void TalCore::setParameter (int index, float newValue)
+             engine->setLfoRate(rateInHz);
+             lfoR->setRate(rateInHz);
              break;
++        case CUTOFF:
++            engine->cutoffParamChange->setValue(newValue);
++            break;
++        case RESONANCE:
++            // Resonance is handled directly in process()
++            break;
++        case FILTERTYPE:
++            // Filter type is handled directly in process()
++            break;
++        case VOLUME:
++            engine->setVolume(newValue);
++            break;
+     }
+ }
