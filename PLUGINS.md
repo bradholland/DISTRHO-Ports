@@ -23,25 +23,17 @@ This document tracks the build and compatibility status of DISTRHO-Ports plugins
 ## Plugin Status
 
 ### JUCE 5 Ports
-- [ ] Plugin1 📝
-- [ ] Plugin2 📝
+- [ ] TAL-Filter 🔧 (In Progress - First test build)
+  - Simple filter plugin
+  - Dependencies: JUCE 5 core
+  - Status: Setting up initial cross-compilation build
 
-### JUCE 6.0 Ports
-- [ ] Plugin1 📝
-- [ ] Plugin2 📝
-
-### JUCE 6.1 Ports
-- [ ] Plugin1 📝
-- [ ] Plugin2 📝
-
-### JUCE 7 Ports
-- [ ] Plugin1 📝
-- [ ] Plugin2 📝
-
-## Working Examples Reference
+### Working Examples Reference
 - BollieDelayXT
 - dm-SpaceEcho (with modifications)
 - MaGigaverb
 
 ## Required Dependencies
-(List will be updated as we discover dependencies during builds)
+- JUCE 5 core libraries
+- Standard C++ library (available on S2400)
+- LV2 headers (available on S2400)

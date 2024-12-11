@@ -22,24 +22,32 @@ jobs:
         sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         sudo apt-get install -y build-essential pkg-config
         sudo apt-get install -y libx11-dev libgl1-mesa-dev
-        # Add additional dependencies as needed
+        sudo apt-get install -y lv2-dev
 
-    - name: Configure build
+    - name: Configure meson build
       run: |
-        meson setup build --cross-file tools/cross-compilation/aarch64-linux-gnu.txt
+        pip3 install meson ninja
+        meson setup build --cross-file tools/cross-compilation/aarch64-linux-gnu.txt \
+          -Dports-juce5-tal-filter=true \
+          -Dbuilder=lv2 \
+          -Doptimization=3
         
-    - name: Build plugins
+    - name: Build TAL-Filter
       run: |
         cd build
-        ninja
+        ninja -v
         
-    - name: Package plugins
+    - name: Prepare plugin package
       run: |
         mkdir -p s2400-plugins
-        find build -name "*.lv2" -type d -exec cp -r {} s2400-plugins/ \;
+        find build -name "TAL-Filter.lv2" -type d -exec cp -r {} s2400-plugins/ \;
+        # Modify the ttl files to change requiredFeature to optionalFeature
+        if [ -f s2400-plugins/TAL-Filter.lv2/manifest.ttl ]; then
+          sed -i 's/requiredFeature/optionalFeature/g' s2400-plugins/TAL-Filter.lv2/manifest.ttl
+        fi
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: s2400-plugins
+        name: s2400-tal-filter
         path: s2400-plugins/
