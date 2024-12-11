@@ -19,21 +19,33 @@ jobs:
     - name: Set up cross-compilation environment
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-        sudo apt-get install -y build-essential pkg-config
-        sudo apt-get install -y libx11-dev libgl1-mesa-dev
-        sudo apt-get install -y lv2-dev
-        # Audio processing dependencies
-        sudo apt-get install -y libfftw3-dev
-        # Cross-compiled libraries for aarch64
-        sudo apt-get install -y libfftw3-dev:arm64
-        sudo apt-get install -y libx11-dev:arm64
-        sudo apt-get install -y libgl1-mesa-dev:arm64
+        sudo apt-get install -yqq --no-install-recommends \
+          autoconf automake build-essential curl cmake file git jq \
+          libglib2.0-dev-bin libtool lsb-release make meson pkg-config
 
+        # Add ARM64 architecture and update package lists
+        sudo dpkg --add-architecture arm64
+        # Add ports repository for ARM64 packages
+        . /etc/lsb-release
+        sudo tee -a /etc/apt/sources.list << EOF
+        deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports ${DISTRIB_CODENAME} main restricted universe multiverse
+        deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports ${DISTRIB_CODENAME}-updates main restricted universe multiverse
+        EOF
+        
+        sudo apt-get update
+        
+        # Install cross-compilation tools and required libraries
+        sudo apt-get install -yqq --allow-downgrades \
+          g++-aarch64-linux-gnu \
+          binfmt-support \
+          qemu-user-static \
+          libasound2-dev:arm64 \
+          libfftw3-dev:arm64 \
+          libgl1-mesa-dev:arm64 \
+          libx11-dev:arm64
+          
     - name: Configure meson build
       run: |
-        pip3 install meson ninja
-        # Set up pkg-config to find arm64 libraries
         export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
         meson setup build --cross-file tools/cross-compilation/aarch64-linux-gnu.txt \
           -Dplugins=tal-filter \
