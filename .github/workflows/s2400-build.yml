@@ -53,9 +53,11 @@ jobs:
     - name: Apply parameter scaling patches
       run: |
         cd ports-juce5/tal-filter/source
-        patch -p3 < parameter-fix.patch
+        cp TalCore.cpp TalCore.cpp.orig
+        patch -p0 < TalCore.cpp.patch
         cd Engine
-        patch -p4 < engine-init.patch
+        cp Engine.h Engine.h.orig
+        patch -p0 < Engine.h.patch
           
     - name: Configure meson build
       env:

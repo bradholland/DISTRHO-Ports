@@ -1,0 +1,31 @@
+--- TalCore.cpp.orig
++++ TalCore.cpp
+@@ -50,6 +50,15 @@
+     {
+         return;
+     }
++    
++    // Scale parameters correctly for LV2
++    switch (index)
++    {
++        case FILTERTYPE:
++            newValue = newValue * 7.0f + 1.0f;
++            break;
++    }
++    
+     params[index] = newValue;
+     
+     switch (index)
+     {
++        case CUTOFF:
++            engine->setCutoff(newValue);
++            break;
+         case RESONANCE:
++            engine->setResonance(newValue);
++            break;
+         case FILTERTYPE:
++            engine->setFilterType((int)(newValue));
++            break;
+         case LFORATE:
+             engine->setSync((int)params[LFOSYNC], newValue);
+             break;

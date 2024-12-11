@@ -1,0 +1,32 @@
+--- Engine.h.orig
++++ Engine.h
+@@ -40,6 +40,17 @@
+         initialize(sampleRate);
+         bpm = 120.0f;
+         volume = 0.8f;
++        
++        // Initialize all parameters to default values
++        setCutoff(1.0f);
++        setResonance(0.5f);
++        setFilterType(1);  // LP filter
++        setLfoAmount(0.0f);
++        setLfoRate(0.5f);
++        setSync(1, 0.5f);  // Manual mode
++        setInputDrive(0.8f);
++        setEnvelopeAmount(0.0f);
++        setVolume(0.8f);
+     }
+ 
+     void process(float *sampleL, float *sampleR)
+     {
++        // Add parameter scaling for cutoff
++        float scaledCutoff = cutoff * cutoff;  // Non-linear scaling
++        
+         // Add envelope
+         float envelopeInput = 0.5f * (*sampleL + *sampleR);
+-        cutoff += envelope->tick(envelopeInput, envelopeAmount, param[ENVELOPESPEED] * param[ENVELOPESPEED]);
++        scaledCutoff += envelope->tick(envelopeInput, envelopeAmount, param[ENVELOPESPEED] * param[ENVELOPESPEED]);
+         
+         // Process filter with scaled parameters
+-        filterHandlerL->process(sampleL, cutoff, param[RESONANCE], cutoffModulationL, param[FILTERTYPE]);
+-        filterHandlerR->process(sampleR, cutoff, param[RESONANCE], cutoffModulationR, param[FILTERTYPE]);
