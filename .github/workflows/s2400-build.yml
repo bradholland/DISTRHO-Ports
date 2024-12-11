@@ -22,7 +22,7 @@ jobs:
         sudo apt-get install -yqq --no-install-recommends \
           autoconf automake build-essential curl cmake file git jq \
           libglib2.0-dev-bin libtool lsb-release make meson pkg-config \
-          lv2-dev lv2utils
+          lv2-dev
 
         # Add ARM64 architecture and update package lists
         sudo dpkg --add-architecture arm64
