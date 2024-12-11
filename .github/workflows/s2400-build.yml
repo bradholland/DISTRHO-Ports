@@ -1,0 +1,45 @@
+name: S2400 Plugin Build
+
+on:
+  push:
+    branches: [ main, s2400-port ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Set up cross-compilation environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+        sudo apt-get install -y build-essential pkg-config
+        sudo apt-get install -y libx11-dev libgl1-mesa-dev
+        # Add additional dependencies as needed
+
+    - name: Configure build
+      run: |
+        meson setup build --cross-file tools/cross-compilation/aarch64-linux-gnu.txt
+        
+    - name: Build plugins
+      run: |
+        cd build
+        ninja
+        
+    - name: Package plugins
+      run: |
+        mkdir -p s2400-plugins
+        find build -name "*.lv2" -type d -exec cp -r {} s2400-plugins/ \;
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: s2400-plugins
+        path: s2400-plugins/
