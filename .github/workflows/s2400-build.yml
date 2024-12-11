@@ -22,7 +22,7 @@ jobs:
         sudo apt-get install -yqq --no-install-recommends \
           autoconf automake build-essential curl cmake file git jq \
           libglib2.0-dev-bin libtool lsb-release make meson pkg-config \
-          lv2-dev
+          lv2-dev patch
 
         # Add ARM64 architecture and update package lists
         sudo dpkg --add-architecture arm64
@@ -49,6 +49,13 @@ jobs:
           libfftw3-dev:arm64 \
           libgl1-mesa-dev:arm64 \
           libx11-dev:arm64
+
+    - name: Apply parameter scaling patches
+      run: |
+        cd ports-juce5/tal-filter/source
+        patch -p3 < parameter-fix.patch
+        cd Engine
+        patch -p4 < engine-init.patch
           
     - name: Configure meson build
       env:
