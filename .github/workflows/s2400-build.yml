@@ -26,14 +26,19 @@ jobs:
 
         # Add ARM64 architecture and update package lists
         sudo dpkg --add-architecture arm64
-        # Add ports repository for ARM64 packages
-        . /etc/lsb-release
-        sudo tee -a /etc/apt/sources.list << EOF
-        deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports ${DISTRIB_CODENAME} main restricted universe multiverse
-        deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports ${DISTRIB_CODENAME}-updates main restricted universe multiverse
+        
+        # Configure ubuntu-ports repository correctly
+        sudo tee /etc/apt/sources.list.d/arm64.list << EOF
+        deb [arch=arm64] http://ports.ubuntu.com/ jammy main restricted
+        deb [arch=arm64] http://ports.ubuntu.com/ jammy-updates main restricted
+        deb [arch=arm64] http://ports.ubuntu.com/ jammy-backports main restricted
+        deb [arch=arm64] http://ports.ubuntu.com/ jammy universe
+        deb [arch=arm64] http://ports.ubuntu.com/ jammy-updates universe
+        deb [arch=arm64] http://ports.ubuntu.com/ jammy multiverse
+        deb [arch=arm64] http://ports.ubuntu.com/ jammy-updates multiverse
         EOF
         
-        sudo apt-get update
+        sudo apt-get update || true
         
         # Install cross-compilation tools and required libraries
         sudo apt-get install -yqq --allow-downgrades \
@@ -47,8 +52,10 @@ jobs:
           
     - name: Configure meson build
       env:
-        CFLAGS: "-DLINUX=1 -DJUCE_LINUX=1"
-        CXXFLAGS: "-DLINUX=1 -DJUCE_LINUX=1"
+        CC: aarch64-linux-gnu-gcc
+        CXX: aarch64-linux-gnu-g++
+        CFLAGS: "-DLINUX=1 -DJUCE_LINUX=1 -DJUCE_ARM=1"
+        CXXFLAGS: "-DLINUX=1 -DJUCE_LINUX=1 -DJUCE_ARM=1"
       run: |
         export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
         meson setup build --cross-file tools/cross-compilation/aarch64-linux-gnu.txt \
@@ -66,13 +73,8 @@ jobs:
         
     - name: Prepare plugin package
       run: |
-        # Create plugins directory
         mkdir -p s2400-plugins
-        
-        # Copy built plugin to staging area
         find build -name "TAL-Filter.lv2" -type d -exec cp -r {} s2400-plugins/ \;
-        
-        # Only modify inPlaceBroken if it exists in the manifest
         if [ -f s2400-plugins/TAL-Filter.lv2/manifest.ttl ]; then
           sed -i 's/lv2:requiredFeature\s\+<http:\/\/lv2plug\.in\/ns\/ext\/inPlaceBroken>/lv2:optionalFeature <http:\/\/lv2plug\.in\/ns\/ext\/inPlaceBroken>/g' s2400-plugins/TAL-Filter.lv2/manifest.ttl
         fi
